@@ -30,6 +30,8 @@ if __name__ == "__main__":
     cv2.namedWindow('video')
     img = None
 
+    print('test')
+
     for line in lines:
         line_len = len(line)
 
