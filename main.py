@@ -28,61 +28,39 @@ if __name__ == "__main__":
     # print(pic_data)
     pic_data_sorted = pic_data.copy()
     pic_data_sorted.sort(key=sorting_key)
-    print(pic_data_sorted)
+    # print(pic_data_sorted)
 
     bbox_file_path = base_path + '/bboxes.txt'
     with open(bbox_file_path) as bbox_file:
         lines = bbox_file.readlines()
     bbox_file.close()
 
-    video_pic_bbox_data = []
+    video_bbox_data = []
     pic_bbox_data = {}
-    pic_bbox_num = 0
-    bbox_read_flag = False
-    read_no_of_bbox_flag = False
+    bb_num = 0
+    bb_counter = 0
+    save_pic_data = False
 
     for line in lines:
-        # line_len = len(line)
-        if read_no_of_bbox_flag:
-            pic_bbox_data['No'] = int(line[:-1])
-            read_no_of_bbox_flag = False
-            print(pic_bbox_data)
+        line_len = len(line)
 
-            if pic_bbox_num < pic_bbox_data['No']:
-                print(pic_bbox_data['No'])
-                pic_bbox_num += 1
-                pic_bbox_data['N'+str(pic_bbox_num)] = line
+        if 4 < line_len < 20:
+            pic_bbox_data['name'] = line[:-1]
 
-            if pic_bbox_num == pic_bbox_data['No']:
-                video_pic_bbox_data.append(pic_bbox_data)
-                pic_bbox_data = {}
-                bbox_read_flag = False
+        if 4 > line_len:
+            pic_bbox_data['count'] = bb_num = int(line[:-1])
 
-        if not bbox_read_flag:
-            x = re.search('jpg', line)
-            if x is not None:
-                pic_bbox_data['name'] = line[:-1]
-                bbox_read_flag = True
-                read_no_of_bbox_flag = True
+        if 20 < line_len:
+            if bb_counter < bb_num:
+                pic_bbox_data['N' + str(bb_counter)] = [float(n) for n in line.split(' ')]
+                bb_counter += 1
 
+        if bb_counter == bb_num and bb_num > 0:
+            video_bbox_data.append(pic_bbox_data)
+            # print(pic_bbox_data)
+            pic_bbox_data = {}
+            bb_num = 0
+            bb_counter = 0
 
-
-
-
-
-
-        # if 10 < line_len < 20:
-        #     if not pic_bbox_data:
-        #         pic_bbox_data['name'] = line[:-1]
-        #         video_pic_bbox_data.append(pic_bbox_data)
-        #         pic_bbox_data = {}
-        #     else:
-        #         pic_bbox_data['name'] = line[:-1]
-        # if 20 < line_len:
-        #     # x_w x_h w h
-        #     pass
-        # if line_len < 4:
-        #     pic_bbox_data['No'] = str(line)
-        #     pass
-
-    print('############', video_pic_bbox_data)
+    print('\n\n', video_bbox_data)
+    # print('\n\n', pic_bbox_data)
