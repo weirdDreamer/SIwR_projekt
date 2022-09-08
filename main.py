@@ -10,38 +10,25 @@ def sorting_key(frame_no):
 
 
 class Frame:
-    def __int__(self, base_path, name, bb_count, bb_pos_dim):
-
+    def __init__(self, base_path, name, bb_count, bb_pos_dim):
         self.img = cv2.imread(base_path+'/frames/'+name)
         self.img_name = name
         self.img_width = self.img.shape[0]
         self.img_height = self.img.shape[1]
         self.bbox_count = bb_count
         self.bbox_pos_dim_float = bb_pos_dim
+        self.bbox_pos_dim_int = None
+        self.bboxes = None
+
+    def proces_data(self):
         self.bbox_pos_dim_int = []
-        for pos_dim in bb_pos_dim:
-            pos_dim_int = [round(pos_dim)for pos_dim in pos_dim]
-            self.bbox_pos_dim_int.append(pos_dim_int)
-        self.bbox_cutted_out = []
-        for pos_dim in self.bbox_pos_dim_int:
-            x, y, w, h = pos_dim
-            sub_img = self.img[x:x+w, y:y+h, :]
-            self.bbox_cutted_out.append(sub_img)
+        for bb_pos_dim in self.bbox_pos_dim_float:
+            self.bbox_pos_dim_int.append([round(pos_dim) for pos_dim in bb_pos_dim])
 
-    def get_bbox_num(self):
-        return self.bbox_count
-
-    def get_bbox_x_y_w_h_int(self, num):
-        if num <= self.bbox_count:
-            return self.bbox_pos_dim_int[num]
-        else:
-            return None
-
-    def get_bbox_x_y_w_h_float(self, num):
-        if num <= self.bbox_count:
-            return self.bbox_pos_dim_float[num]
-        else:
-            return None
+        self.bboxes = []
+        for bb_pos_dim in self.bbox_pos_dim_int:
+            x, y, w, h = bb_pos_dim
+            self.bboxes.append(self.img[y:y+h, x:x + w, :])
 
 
 if __name__ == "__main__":
@@ -71,14 +58,14 @@ if __name__ == "__main__":
     bboxes_file.close()
 
     video_bbox_data = []
-    pic_bbox_data = {}
+    pic_bbox_data = {'pos_dim': []}
     bb_num = 0
     bb_counter = 0
     n_equal_0_flag = False
 
     frame_proccesing_flag = False
     frames = []
-    temp = -1
+
     for line in lines:
         line_len = len(line)
 
@@ -89,18 +76,23 @@ if __name__ == "__main__":
             pic_bbox_data['count'] = bb_num = int(line[:-1])
             if bb_num == 0:
                 n_equal_0_flag = True
+
         if 20 < line_len:
             if bb_counter < bb_num:
-                pic_bbox_data['N' + str(bb_counter)] = [float(n) for n in line.split(' ')]
+                # pic_bbox_data['N' + str(bb_counter)] = [float(n) for n in line.split(' ')]
+                pic_bbox_data['pos_dim'].append([float(n) for n in line.split(' ')])
                 bb_counter += 1
 
         if (bb_counter == bb_num and bb_num > 0) or n_equal_0_flag:
             # video_bbox_data.append(pic_bbox_data)
-            frame = 1 #Frame()
-            frames.insert(0, frame)
+            # print(pic_bbox_data)
+            frame = Frame(base_path, pic_bbox_data['name'], pic_bbox_data['count'], pic_bbox_data['pos_dim'])
+            frames.append(frame)
+
             if len(frames) > 5:
-                frames.pop(-1)
-            pic_bbox_data = {}
+                frames.pop(1)
+
+            pic_bbox_data = {'pos_dim': []}
             bb_num = 0
             bb_counter = 0
             n_equal_0_flag = False
@@ -108,7 +100,7 @@ if __name__ == "__main__":
 
         if frame_proccesing_flag:
             frame_proccesing_flag = False
-            print(frames)
 
-
-    print('\n\n', video_bbox_data)
+    for frame in frames:
+        pass
+    # print('\n\n', video_bbox_data)
