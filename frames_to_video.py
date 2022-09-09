@@ -56,6 +56,7 @@ if __name__ == "__main__":
                 img = cv2.rectangle(img, (int(x), int(y)), (int(x+w), int(y+h)), (0, 255, 0), 2)
                 i += 1
 
+            # print(pic_bbox_data['name'])
             cv2.imshow('video', img)
             cv2.waitKey()
 

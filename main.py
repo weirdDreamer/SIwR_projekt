@@ -2,12 +2,8 @@ import sys
 import cv2
 import numpy as np
 import os
-import re
-
-
-def sorting_key(frame_no):
-    return frame_no[1]
-
+import random
+from pgmpy.models import FactorGraph
 
 class Frame:
     def __init__(self, base_path, name, bb_count, bb_pos_dim):
@@ -19,8 +15,9 @@ class Frame:
         self.bbox_pos_dim_float = bb_pos_dim
         self.bbox_pos_dim_int = None
         self.bboxes = None
+        self.bboxes_marks = []
 
-    def proces_data(self):
+    def do_the_processig(self):
         self.bbox_pos_dim_int = []
         for bb_pos_dim in self.bbox_pos_dim_float:
             self.bbox_pos_dim_int.append([round(pos_dim) for pos_dim in bb_pos_dim])
@@ -29,28 +26,30 @@ class Frame:
         for bb_pos_dim in self.bbox_pos_dim_int:
             x, y, w, h = bb_pos_dim
             self.bboxes.append(self.img[y:y+h, x:x + w, :])
+    def subtract_bg(self, background, subtractor):
+        pass
+
+def get_probability(curr, prev):
+    pass
 
 
 if __name__ == "__main__":
-    # pobranie pierwszego parametru (ścieżki do katalogu z plikami)
-    # z parametów uruchomieniowych
+    # pobranie pierwszego parametru (ścieżki do katalogu z plikami) z parametów uruchomieniowych
     base_path = sys.argv[1]
-    # # pobranie nazw poszczególnych klatek z filmu
-    # pic_names = os.listdir(base_path + '/frames')
-    # # sprawdzenie co wypluła funkcja
-    # # print(pic_names)
-    #
-    # pic_data = []
-    # for pic_name in pic_names:
-    #     # print(pic_name)
-    #     # print(pic_name[5:11])
-    #     # print(int(pic_name[5:11]), '\n')
-    #     pic_data.append((pic_name, int(pic_name[5:11])))
-    #
-    # # print(pic_data)
-    # pic_data_sorted = pic_data.copy()
-    # pic_data_sorted.sort(key=sorting_key)
-    # # print(pic_data_sorted)
+    # pobranie nazw poszczególnych klatek z filmu
+    pic_names = os.listdir(base_path + '/frames')
+
+    pic_names_len = len(pic_names)
+    no_of_samples = int(pic_names_len*0.15)
+    the_choosen_ones = random.sample(range(0, pic_names_len-1), no_of_samples)
+
+    frames_bg = []
+    for i in the_choosen_ones:
+        frames_bg.append(cv2.imread(base_path+'/frames/'+pic_names[i]))
+
+    viedo_backbround = np.median(frames_bg, axis=0).astype(dtype=np.uint8)
+    # cv2.imshow('bg', viedo_backbround)
+    # cv2.waitKey()
 
     bboxes_file_path = base_path + '/bboxes.txt'
     with open(bboxes_file_path) as bboxes_file:
@@ -64,7 +63,7 @@ if __name__ == "__main__":
     n_equal_0_flag = False
 
     frame_proccesing_flag = False
-    frames = []
+    frames_history = []
 
     for line in lines:
         line_len = len(line)
@@ -87,10 +86,11 @@ if __name__ == "__main__":
             # video_bbox_data.append(pic_bbox_data)
             # print(pic_bbox_data)
             frame = Frame(base_path, pic_bbox_data['name'], pic_bbox_data['count'], pic_bbox_data['pos_dim'])
-            frames.append(frame)
+            frames_history.append(frame)
 
-            if len(frames) > 5:
-                frames.pop(1)
+            # trim frames list to given lenght
+            if len(frames_history) > 3:
+                frames_history.pop(1)
 
             pic_bbox_data = {'pos_dim': []}
             bb_num = 0
@@ -101,6 +101,6 @@ if __name__ == "__main__":
         if frame_proccesing_flag:
             frame_proccesing_flag = False
 
-    for frame in frames:
+    for frame in frames_history:
         pass
     # print('\n\n', video_bbox_data)
