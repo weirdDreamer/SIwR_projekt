@@ -1,13 +1,16 @@
 import sys
-import cv2
+import cv2.cv2 as cv
 import numpy as np
 import os
 import random
 from pgmpy.models import FactorGraph
+from pgmpy.factors.discrete import DiscreteFactor
+from pgmpy.inference import BeliefPropagation
+
 
 class Frame:
     def __init__(self, base_path, name, bb_count, bb_pos_dim):
-        self.img = cv2.imread(base_path+'/frames/'+name)
+        self.img = cv.imread(base_path+'/frames/'+name)
         self.img_name = name
         self.img_width = self.img.shape[0]
         self.img_height = self.img.shape[1]
@@ -26,11 +29,22 @@ class Frame:
         for bb_pos_dim in self.bbox_pos_dim_int:
             x, y, w, h = bb_pos_dim
             self.bboxes.append(self.img[y:y+h, x:x + w, :])
+
     def subtract_bg(self, background, subtractor):
         pass
 
-def get_probability(curr, prev):
-    pass
+
+def get_probability(curr_frame, prev_frame):
+    graph = FactorGraph()
+    if prev_frame.bbox_count == 0:
+
+        mat_dim = prev_frame.bbox_count+1
+        neighbour_nodes_mat = np.ones((mat_dim, mat_dim), dtype=float)
+        np.fill_diagonal(neighbour_nodes_mat, 0.0)
+        neighbour_nodes_mat[0, 0] = 1.0
+
+    else:
+        pass
 
 
 if __name__ == "__main__":
@@ -45,11 +59,11 @@ if __name__ == "__main__":
 
     frames_bg = []
     for i in the_choosen_ones:
-        frames_bg.append(cv2.imread(base_path+'/frames/'+pic_names[i]))
+        frames_bg.append(cv.imread(base_path+'/frames/'+pic_names[i]))
 
     viedo_backbround = np.median(frames_bg, axis=0).astype(dtype=np.uint8)
-    # cv2.imshow('bg', viedo_backbround)
-    # cv2.waitKey()
+    cv.imshow('bg', viedo_backbround)
+    # cv.wait
 
     bboxes_file_path = base_path + '/bboxes.txt'
     with open(bboxes_file_path) as bboxes_file:
@@ -102,5 +116,7 @@ if __name__ == "__main__":
             frame_proccesing_flag = False
 
     for frame in frames_history:
+        cv.imshow('vid', frame.img)
+        cv.waitKey()
         pass
     # print('\n\n', video_bbox_data)
