@@ -3,6 +3,7 @@ import cv2.cv2 as cv
 import numpy as np
 import os
 import random
+import matplotlib.pyplot as plt
 from pgmpy.models import FactorGraph
 from pgmpy.factors.discrete import DiscreteFactor
 from pgmpy.inference import BeliefPropagation
@@ -16,35 +17,40 @@ class Frame:
         self.img_height = self.img.shape[1]
         self.bbox_count = bb_count
         self.bbox_pos_dim_float = bb_pos_dim
-        self.bbox_pos_dim_int = None
-        self.bboxes = None
-        self.bboxes_marks = []
-
-    def do_the_processig(self):
+        # variable_initiation
         self.bbox_pos_dim_int = []
+        self.bboxes = []
+        self.bboxes_trimmed = []
+        self.bboxes_hist = []
+        self.bboxes_trimmed_hist = []
+
+    def process_the_frame(self, background):
+
         for bb_pos_dim in self.bbox_pos_dim_float:
             self.bbox_pos_dim_int.append([round(pos_dim) for pos_dim in bb_pos_dim])
 
-        self.bboxes = []
-        for bb_pos_dim in self.bbox_pos_dim_int:
-            x, y, w, h = bb_pos_dim
-            self.bboxes.append(self.img[y:y+h, x:x + w, :])
+        trim_f = 0.15 / 2
 
-    def subtract_bg(self, background, subtractor):
-        pass
+        for bb_pos_dim in self.bbox_pos_dim_int:
+            # get position and dimentions out of list
+            x, y, w, h = bb_pos_dim
+            # put cuted out bounding boxes to list
+            bbox = self.img[y:y+h, x:x + w, :]
+            self.bboxes.append(bbox)
+
+            d_h = int(h * trim_f)
+            d_w = int(w * trim_f)
+            bbox_trim = self.img[y + d_h:y + h - d_h, x + d_w:x + w - d_w, :]
+            self.bboxes_trimmed.append(bbox_trim)
+
+            self.bboxes_hist.append(cv.calcHist([bbox], [0], None, [256], [0, 256]))
+
+            self.bboxes_trimmed_hist.append(cv.calcHist([bbox_trim], [0], None, [256], [0, 256]))
 
 
 def get_probability(curr_frame, prev_frame):
-    graph = FactorGraph()
-    if prev_frame.bbox_count == 0:
 
-        mat_dim = prev_frame.bbox_count+1
-        neighbour_nodes_mat = np.ones((mat_dim, mat_dim), dtype=float)
-        np.fill_diagonal(neighbour_nodes_mat, 0.0)
-        neighbour_nodes_mat[0, 0] = 1.0
 
-    else:
-        pass
 
 
 if __name__ == "__main__":
@@ -62,7 +68,7 @@ if __name__ == "__main__":
         frames_bg.append(cv.imread(base_path+'/frames/'+pic_names[i]))
 
     viedo_backbround = np.median(frames_bg, axis=0).astype(dtype=np.uint8)
-    cv.imshow('bg', viedo_backbround)
+    # cv.imshow('bg', viedo_backbround)
     # cv.wait
 
     bboxes_file_path = base_path + '/bboxes.txt'
@@ -78,6 +84,8 @@ if __name__ == "__main__":
 
     frame_proccesing_flag = False
     frames_history = []
+
+    lines = lines[:500]
 
     for line in lines:
         line_len = len(line)
@@ -103,8 +111,8 @@ if __name__ == "__main__":
             frames_history.append(frame)
 
             # trim frames list to given lenght
-            if len(frames_history) > 3:
-                frames_history.pop(1)
+            # if len(frames_history) > 3:
+            #     frames_history.pop(1)
 
             pic_bbox_data = {'pos_dim': []}
             bb_num = 0
@@ -116,7 +124,19 @@ if __name__ == "__main__":
             frame_proccesing_flag = False
 
     for frame in frames_history:
-        cv.imshow('vid', frame.img)
-        cv.waitKey()
+        frame.process_the_frame(viedo_backbround)
+        cv.imshow('frame',frame.img)
+
+        for i in range(frame.bbox_count):
+            cv.imshow('bb', frame.bboxes[i])
+            cv.imshow('bb_tr', frame.bboxes_trimmed[i])
+            cv.waitKey()
+
+            plt.subplot(211)
+            plt.plot(frame.bboxes_hist[i])
+            plt.subplot(212)
+            plt.plot(frame.bboxes_trimmed_hist[i])
+            plt.show()
+
         pass
     # print('\n\n', video_bbox_data)
