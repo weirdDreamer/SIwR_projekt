@@ -9,6 +9,25 @@ from pgmpy.factors.discrete import DiscreteFactor
 from pgmpy.inference import BeliefPropagation
 from  itertools import combinations
 
+# TODO Jakość kodu i raport (1/5)
+# TODO Brak raportu.
+# TODO Projekt niedokończony.
+
+# TODO Skuteczność śledzenia 0.0 (0/5)
+# TODO [0.00, 0.0] - 0.0
+# TODO (0.0, 0.1) - 0.5
+# TODO [0.1, 0.2) - 1.0
+# TODO [0.2, 0.3) - 1.5
+# TODO [0.3, 0.4) - 2.0
+# TODO [0.4, 0.5) - 2.5
+# TODO [0.5, 0.6) - 3.0
+# TODO [0.6, 0.7) - 3.5
+# TODO [0.7, 0.8) - 4.0
+# TODO [0.8, 0.9) - 4.5
+# TODO [0.9, 1.0) - 5.0
+
+# Stderr not empty
+# niepoprawne wyjście: oczekiwana liczba linii = 400, otrzymana liczba linii = 3
 
 class Frame:
     def __init__(self, base_path, name, bb_count, bb_pos_dim):
@@ -68,8 +87,10 @@ def get_probability(curr_frame, prev_frame):
 
             hist_diff_avg_sublist.append(hist_diff_avg/divider)
         hist_diff_avg_list.append(hist_diff_avg_sublist)
+    # TODO Program nie powinien nic wypisywac, oprocz wynikow.
     print('curr ', curr_frame.bbox_count, ' prev ', prev_frame.bbox_count)
     print(hist_diff_avg_list)
+    # TODO W przypadku braku bboxów program powinien wypisać pustą linię.
     if prev_frame.bbox_count > 0 and curr_frame.bbox_count > 0:
 
         data_in_vec_list = []
@@ -113,6 +134,7 @@ def get_probability(curr_frame, prev_frame):
 
         propagation = BeliefPropagation(graph)
 
+        # TODO Brakuje obliczenia i wypisania wyniku.
         # propagation.map_query()
 
     else:
@@ -151,11 +173,13 @@ if __name__ == "__main__":
     frame_proccesing_flag = False
     frames_history = []
 
+    # TODO Dlaczego tylko 50 pierwszych linii?
     lines = lines[:50]# pfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
     for line in lines:
         line_len = len(line)
 
+        # TODO Lepiej wykorzystać kolejność danych w pliku, a nie numery linii (ryzykowne, jeśli coś się zmieni np. w nazwach).
         if 4 < line_len < 20:
             pic_bbox_data['name'] = line[:-1]
 
@@ -176,6 +200,7 @@ if __name__ == "__main__":
             frame = Frame(base_path, pic_bbox_data['name'], pic_bbox_data['count'], pic_bbox_data['pos_dim'])
             frames_history.append(frame)
 
+            # TODO Dlaczego tylko 3 klatki?
             # trim frames list to given lenght
             if len(frames_history) > 3:
                 frames_history.pop(-4)
