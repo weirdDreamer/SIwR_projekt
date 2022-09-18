@@ -6,17 +6,29 @@ Graf
 
 
 prob_vec                      prob_vec
+
      \                         /
+     
        \                     /
+       
         bb0----link_mtx---bb1
+        
           \              /
+          
            \            /
-        link_mtx   link_mtx      
+           
+        link_mtx   link_mtx   
+        
               \      /
+              
                \    /
+               
                 bb2
+                
                  |
+                 
                  |
+                 
               prob_vec
 
 Testy
