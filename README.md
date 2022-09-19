@@ -11,6 +11,7 @@ W funkcji get_probability porównywane są informacje o bounding box'ach na popr
 Czynniki jednoargumentowe (unary factors) służące do utworzenia wektora danych wejściowych (probe_vec na rysunku 1) są różnicą histogramu danego go bounding box'a z danym bounding box'em z poprzedniej klatki. Wartości są znormalizowaną (do przedziału 0 - 1). W celu zmniejszenia wpływu tła wycięte bounding box'y pomniejszane są o 15% (do około od krawędzi od środka) względem oryginału.
 
 ![graph](https://user-images.githubusercontent.com/50810180/191033742-b8f308f2-d61e-4c54-bf7a-45c17b4ada32.jpg) 
+
 Obrazek 1. Przykładowy graf dla przypadku gdy obecna oraz poprzednia ramka ma po 3 bounding box'y.   
 Gdzie n oznacza numer bounding box'a (przy czym wyrażenie n+1 dla n równego n_max oznacza 0)
 
