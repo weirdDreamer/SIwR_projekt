@@ -1,5 +1,5 @@
 # SIwR projekt
-Uruchomienie projektu: jako argument do skryptu należy podać ścieżkę do folderu z zawierającego podfolder *frames* oraz plik tekstowy *bboxes.txt*.
+Uruchomienie projektu: jako argument do skryptu *main.py* należy podać ścieżkę do folderu z zawierającego podfolder *frames* oraz plik tekstowy *bboxes.txt*.
 
 Projekt polega na śledzącego przechodniów z wykorzystaniem probablistycznego modeleu grafowego.
 
