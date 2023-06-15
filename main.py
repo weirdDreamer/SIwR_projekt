@@ -1,5 +1,5 @@
 import sys
-import cv2.cv2 as cv
+import cv2 as cv
 import numpy as np
 from pgmpy.models import FactorGraph
 from pgmpy.factors.discrete import DiscreteFactor
@@ -240,7 +240,7 @@ if __name__ == "__main__":
             n_equal_0_flag = False
 
     # accuracy test
-    testing_mode_flag = False  # True for testing
+    testing_mode_flag = False #True for testing
     if testing_mode_flag:
         # add file name to directory path
         bboxes_gt_file_path = base_path + '/bboxes_gt.txt'
